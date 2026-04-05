@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { GoogleGenAI } from "@google/genai";
+import dbConnect from "@/lib/db";
+import MedicalHistory from "@/models/MedicalHistory";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -29,10 +31,12 @@ export async function POST(req: Request) {
       parts.push({ text });
     }
 
+    let fileDataUrl = '';
     if (file) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const base64Data = buffer.toString("base64");
+      fileDataUrl = `data:${file.type};base64,${base64Data}`;
 
       parts.push({
         inlineData: {
@@ -51,6 +55,8 @@ Generate a structured medical report with the following sections EXACTLY:
 - Precautions
 - Lifestyle Suggestions
 - Follow-up Advice
+- Severity Level (Low / Medium / High)
+- Recommended Doctor Type (e.g., General Physician, Cardiologist)
 
 Format the output clearly using Markdown. Be professional, empathetic, and clear. 
 Always include a disclaimer that this is an AI analysis and the patient should consult a real doctor.`;
@@ -63,7 +69,17 @@ Always include a disclaimer that this is an AI analysis and the patient should c
       },
     });
 
-    return NextResponse.json({ report: response.text });
+    const reportText = response.text;
+
+    // Save to Medical History
+    await dbConnect();
+    await MedicalHistory.create({
+      patientId: session.user.id,
+      reportText,
+      prescriptionFile: fileDataUrl || undefined,
+    });
+
+    return NextResponse.json({ report: reportText });
   } catch (error: any) {
     console.error("AI Error:", error);
     return NextResponse.json(

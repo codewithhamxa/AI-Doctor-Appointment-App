@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Appointment from "@/models/Appointment";
+import Notification from "@/models/Notification";
 
 export async function GET(req: Request) {
   try {
@@ -41,13 +42,31 @@ export async function POST(req: Request) {
 
     await dbConnect();
 
+    // Check for double booking
+    const existingAppointment = await Appointment.findOne({
+      doctorId,
+      date: new Date(date),
+      timeSlot,
+      status: { $in: ['pending', 'accepted'] }
+    });
+
+    if (existingAppointment) {
+      return NextResponse.json({ message: 'This time slot is already booked for this doctor.' }, { status: 400 });
+    }
+
     const appointment = await Appointment.create({
       patientId: session.user.id,
       doctorId,
-      date,
+      date: new Date(date),
       timeSlot,
       symptoms,
       status: "pending",
+    });
+
+    // Create notification for doctor
+    await Notification.create({
+      userId: doctorId,
+      message: `New appointment request from ${session.user.name} on ${new Date(date).toLocaleDateString()} at ${timeSlot}.`
     });
 
     return NextResponse.json(appointment, { status: 201 });
