@@ -262,13 +262,15 @@ export default function PatientDashboard() {
                       {apt.timeSlot}
                     </div>
                     {apt.status === "accepted" && (
-                      <Link
-                        href={`/meeting/${apt._id}`}
+                      <a
+                        href={`https://meet.jit.si/MediAI-Consultation-${apt._id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="mt-3 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-medium text-sm transition-colors w-full"
                       >
                         <Video className="h-4 w-4" />
                         Join Video Call
-                      </Link>
+                      </a>
                     )}
                     {apt.status === "completed" && (
                       <button
