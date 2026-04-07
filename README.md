@@ -1,12 +1,8 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+# Run and deploy your Medi Ai app
 
 This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/bee569cd-3459-4936-8027-04639cc79151
 
 ## Run Locally
 
@@ -18,3 +14,14 @@ View your app in AI Studio: https://ai.studio/apps/bee569cd-3459-4936-8027-04639
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## **.env.local File:**  Node.js
+
+1. GEMINI_API_KEY="your Api Key"
+
+2. APP_URL="http://localhost:3000/"
+
+3. MONGODB_URI="Your MongoDB Database URL"
+
+4. NEXTAUTH_SECRET="my_super_secret_nextauth_key_123"
+5. NEXTAUTH_URL="http://localhost:3000/"
