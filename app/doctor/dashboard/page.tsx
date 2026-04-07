@@ -13,6 +13,7 @@ export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("appointments");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -69,169 +70,206 @@ export default function DoctorDashboard() {
     : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Doctor Dashboard</h1>
-          <p className="text-gray-500 mt-1">
-            Welcome back, Dr. {session?.user?.name}
-          </p>
+    <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] bg-gray-50 overflow-hidden">
+      {/* Sidebar */}
+      <aside className="w-full md:w-64 bg-white border-b md:border-r border-gray-200 flex flex-col shrink-0">
+        <div className="p-6 border-b border-gray-100 hidden md:block">
+          <h2 className="text-xl font-bold text-gray-900">Doctor Panel</h2>
+          <p className="text-sm text-gray-500 mt-1 truncate">Dr. {session?.user?.name}</p>
         </div>
-        <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-3">
-          <div className="bg-yellow-100 p-2 rounded-lg">
-            <Star className="h-5 w-5 text-yellow-600 fill-current" />
-          </div>
-          <div>
-            <div className="text-sm text-gray-500 font-medium">Average Rating</div>
-            <div className="text-xl font-bold text-gray-900">{avgRating} <span className="text-sm font-normal text-gray-500">({reviews.length} reviews)</span></div>
+        
+        {/* Rating Badge in Sidebar */}
+        <div className="px-6 py-4 border-b border-gray-100 hidden md:block bg-gray-50/50">
+          <div className="text-xs text-gray-500 font-medium mb-1 uppercase tracking-wider">Overall Rating</div>
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500 fill-current" />
+            <span className="text-lg font-bold text-gray-900">{avgRating}</span>
+            <span className="text-sm text-gray-500">({reviews.length})</span>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-600" />
-                Manage Appointments
-              </h2>
-            </div>
+        <nav className="flex md:flex-col p-2 md:p-4 gap-2 overflow-x-auto md:overflow-y-auto hide-scrollbar">
+          <button
+            onClick={() => setActiveTab("appointments")}
+            className={`flex items-center gap-3 whitespace-nowrap p-3 rounded-xl text-left transition-colors ${
+              activeTab === "appointments" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <Calendar className="h-5 w-5 shrink-0" />
+            <span className="hidden md:inline">Manage Appointments</span>
+            <span className="md:hidden">Appointments</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("reviews")}
+            className={`flex items-center gap-3 whitespace-nowrap p-3 rounded-xl text-left transition-colors ${
+              activeTab === "reviews" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <MessageSquare className="h-5 w-5 shrink-0" />
+            <span className="hidden md:inline">Patient Reviews</span>
+            <span className="md:hidden">Reviews</span>
+          </button>
+        </nav>
+      </aside>
 
-            <div className="divide-y divide-gray-200">
-              {appointments.length === 0 ? (
-                <div className="p-6 text-center text-gray-500">
-                  No appointments found.
-                </div>
-              ) : (
-                appointments.map((apt: any) => (
-                  <div
-                    key={apt._id}
-                    className="p-6 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {apt.patientId?.name}
-                        </h3>
-                        <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {format(new Date(apt.date), "MMM dd, yyyy")}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {apt.timeSlot}
-                          </span>
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          
+          {activeTab === "appointments" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <Calendar className="h-6 w-6 text-blue-600" />
+                  Manage Appointments
+                </h2>
+              </div>
+
+              <div className="divide-y divide-gray-100">
+                {appointments.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 font-medium">No appointments found.</p>
+                  </div>
+                ) : (
+                  appointments.map((apt: any) => (
+                    <div
+                      key={apt._id}
+                      className="p-6 hover:bg-gray-50/80 transition-colors"
+                    >
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            {apt.patientId?.name}
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize tracking-wide
+                              ${
+                                apt.status === "accepted"
+                                  ? "bg-green-100 text-green-800"
+                                  : apt.status === "rejected"
+                                    ? "bg-red-100 text-red-800"
+                                    : apt.status === "completed"
+                                      ? "bg-gray-200 text-gray-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {apt.status}
+                            </span>
+                          </h3>
+                          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                            <span className="flex items-center gap-1.5 bg-white border border-gray-200 px-2.5 py-1 rounded-md shadow-sm">
+                              <Calendar className="h-4 w-4 text-blue-500" />
+                              {format(new Date(apt.date), "MMM dd, yyyy")}
+                            </span>
+                            <span className="flex items-center gap-1.5 bg-white border border-gray-200 px-2.5 py-1 rounded-md shadow-sm">
+                              <Clock className="h-4 w-4 text-blue-500" />
+                              {apt.timeSlot}
+                            </span>
+                          </div>
+                          {apt.symptoms && (
+                            <div className="mt-3 text-sm text-gray-700 bg-blue-50/50 border border-blue-100 p-3 rounded-xl">
+                              <span className="font-semibold text-blue-900 block mb-1">Reported Symptoms:</span>
+                              {apt.symptoms}
+                            </div>
+                          )}
                         </div>
-                        {apt.symptoms && (
-                          <p className="mt-2 text-sm text-gray-600 bg-gray-100 p-2 rounded-lg">
-                            <span className="font-medium">Symptoms:</span>{" "}
-                            {apt.symptoms}
-                          </p>
-                        )}
-                      </div>
 
-                      <div className="flex items-center gap-3 w-full sm:w-auto">
-                        {apt.status === "pending" ? (
-                          <>
-                            <button
-                              onClick={() => updateStatus(apt._id, "accepted")}
-                              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg font-medium text-sm transition-colors"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => updateStatus(apt._id, "rejected")}
-                              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg font-medium text-sm transition-colors"
-                            >
-                              <XCircle className="h-4 w-4" />
-                              Reject
-                            </button>
-                          </>
-                        ) : (
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium capitalize
-                            ${
-                              apt.status === "accepted"
-                                ? "bg-green-100 text-green-800"
-                                : apt.status === "rejected"
-                                  ? "bg-red-100 text-red-800"
-                                  : apt.status === "completed"
-                                    ? "bg-gray-200 text-gray-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                            }`}
-                          >
-                            {apt.status}
-                          </span>
-                        )}
+                        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto shrink-0">
+                          {apt.status === "pending" && (
+                            <>
+                              <button
+                                onClick={() => updateStatus(apt._id, "accepted")}
+                                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-xl font-medium text-sm transition-colors shadow-sm"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => updateStatus(apt._id, "rejected")}
+                                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl font-medium text-sm transition-colors"
+                              >
+                                <XCircle className="h-4 w-4" />
+                                Reject
+                              </button>
+                            </>
+                          )}
 
-                        {apt.status === "accepted" && (
-                          <>
-                            <a
-                              href={`https://meet.jit.si/MediAI-Consultation-${apt._id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center gap-1 px-4 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg font-medium text-sm transition-colors"
-                            >
-                              <Video className="h-4 w-4" />
-                              Join Call
-                            </a>
-                            <button
-                              onClick={() => updateStatus(apt._id, "completed")}
-                              className="inline-flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-medium text-sm transition-colors"
-                            >
-                              Mark Completed
-                            </button>
-                          </>
-                        )}
+                          {apt.status === "accepted" && (
+                            <>
+                              <a
+                                href={`https://meet.jit.si/MediAI-Consultation-${apt._id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded-xl font-medium text-sm transition-colors shadow-sm"
+                              >
+                                <Video className="h-4 w-4" />
+                                Join Call
+                              </a>
+                              <button
+                                onClick={() => updateStatus(apt._id, "completed")}
+                                className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl font-medium text-sm transition-colors"
+                              >
+                                Mark Completed
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          )}
 
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-blue-600" />
-                Patient Reviews
-              </h2>
-            </div>
-            <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
-              {reviews.length === 0 ? (
-                <div className="p-6 text-center text-gray-500">
-                  No reviews yet.
+          {activeTab === "reviews" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <MessageSquare className="h-6 w-6 text-blue-600" />
+                  Patient Reviews
+                </h2>
+                <div className="md:hidden flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
+                   <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                   <span className="font-bold text-sm">{avgRating}</span>
                 </div>
-              ) : (
-                reviews.map((review: any) => (
-                  <div key={review._id} className="p-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="font-medium text-gray-900">{review.patientId?.name}</div>
-                      <div className="flex text-yellow-400">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-current' : 'text-gray-200'}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500 mb-2">
-                      {format(new Date(review.createdAt), "MMM dd, yyyy")}
-                    </div>
-                    {review.comment && (
-                      <p className="text-sm text-gray-700 italic">&quot;{review.comment}&quot;</p>
-                    )}
+              </div>
+              <div className="divide-y divide-gray-100">
+                {reviews.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 font-medium">No reviews yet.</p>
                   </div>
-                ))
-              )}
+                ) : (
+                  reviews.map((review: any) => (
+                    <div key={review._id} className="p-6 hover:bg-gray-50/50 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-bold text-gray-900">{review.patientId?.name}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {format(new Date(review.createdAt), "MMMM dd, yyyy")}
+                          </div>
+                        </div>
+                        <div className="flex gap-0.5 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                          ))}
+                        </div>
+                      </div>
+                      {review.comment && (
+                        <div className="text-sm text-gray-700 bg-white border border-gray-100 p-4 rounded-xl italic shadow-sm">
+                          &quot;{review.comment}&quot;
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
         </div>
-      </div>
+      </main>
     </div>
   );
 }
