@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Calendar, Clock, CheckCircle, XCircle, Loader2, Video, Star, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 
@@ -168,15 +169,13 @@ export default function DoctorDashboard() {
 
                         {apt.status === "accepted" && (
                           <>
-                            <a
-                              href={`https://meet.jit.si/MediAI-Consultation-${apt._id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <Link
+                              href={`/meeting/${apt._id}`}
                               className="inline-flex items-center justify-center gap-1 px-4 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg font-medium text-sm transition-colors"
                             >
                               <Video className="h-4 w-4" />
                               Join Call
-                            </a>
+                            </Link>
                             <button
                               onClick={() => updateStatus(apt._id, "completed")}
                               className="inline-flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-medium text-sm transition-colors"

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AIChat from "@/components/AIChat";
 import { Calendar, Clock, User as UserIcon, Loader2, Video, Star, FileText, History } from "lucide-react";
 import { format } from "date-fns";
@@ -261,15 +262,13 @@ export default function PatientDashboard() {
                       {apt.timeSlot}
                     </div>
                     {apt.status === "accepted" && (
-                      <a
-                        href={`https://meet.jit.si/MediAI-Consultation-${apt._id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Link
+                        href={`/meeting/${apt._id}`}
                         className="mt-3 inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-medium text-sm transition-colors w-full"
                       >
                         <Video className="h-4 w-4" />
                         Join Video Call
-                      </a>
+                      </Link>
                     )}
                     {apt.status === "completed" && (
                       <button
